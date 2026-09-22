@@ -1,0 +1,12 @@
+hva opleidingen included, cursussen not included
+uva complete
+vu complete
+
+compare pdfs in downloads folder and find the best for RAG.
+
+make trusted universities jumpy, make them like bubbles on hover
+login
+contact page
+loading icon
+send message to AI bot when clicked on find tutors button
+add AI RAG part

@@ -1,0 +1,29 @@
+# Core API dependencies
+fastapi
+uvicorn
+python-dotenv
+requests
+pydantic
+
+# LangChain ecosystem
+langchain
+langchain-openai
+langchain-text-splitters
+langgraph
+
+# PDF processing
+PyPDF2>=3.0.0
+pdf2image
+
+# AI/ML libraries
+sentence-transformers
+faiss-cpu
+numpy
+openai
+transformers
+torch
+
+# Web scraping
+playwright
+beautifulsoup4
+tls-client

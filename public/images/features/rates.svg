@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4c1d95;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <circle cx="50" cy="50" r="48" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="2" />
+  
+  <!-- Coins -->
+  <rect x="35" y="60" width="30" height="10" rx="2" fill="#4c1d95" />
+  <rect x="35" y="48" width="30" height="10" rx="2" fill="#8b5cf6" />
+  <rect x="35" y="36" width="30" height="10" rx="2" fill="#a78bfa" />
+  
+  <!-- Arrow -->
+  <path d="M75 55 L 75 35 L 85 45 M 75 35 L 65 45" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

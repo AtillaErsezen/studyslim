@@ -1,0 +1,171 @@
+/* Updated: 2025-09-27T19:25:32.706Z */
+/* Updated: 2025-09-27T14:54:18.478Z */
+/* Updated: 2025-09-27T11:41:24.984Z */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-display: var(--font-space-grotesk);
+  --font-mono-ui: var(--font-jetbrains-mono);
+
+  /* Custom Color Variables */
+  --color-cream: var(--cream);
+  --color-carbon: var(--carbon);
+  --color-violet: var(--violet);
+  --color-violet-dark: var(--violet-dark);
+  --color-violet-light: var(--violet-light);
+  --color-lime: var(--lime);
+  --color-lime-glow: var(--lime-glow);
+}
+
+:root {
+  --radius: 0.625rem;
+
+  /* StudiSlim Brand Colors - Light Mode */
+  --background: #f8f2e7; /* Cream (Background) #fdfbf7*/ 
+  --foreground: #1f2937; /* Carbon (Text/Dark UI) */
+  --card: #ffffff; /* Pure white for cards */
+  --card-foreground: #1f2937;
+  --popover: #ffffff;
+  --popover-foreground: #1f2937;
+  --primary: #6366f1; /* Violet (AI/Intelligence) - Default */
+  --primary-foreground: #ffffff;
+  --secondary: #eaf3fa; /* Very light blue for secondary backgrounds */
+  --secondary-foreground: #1f2937;
+  --muted: #efe6ffd5; /* Muted light blue */
+  --muted-foreground: #6c7a89; /* Muted navy */
+  --accent: #b8d8f7; /* Accent light blue */
+  --accent-foreground: #1f2937;
+  --destructive: #e57373;
+  --border: #dbe7f3; /* Soft blue border */
+  --input: #f0f4fa;
+  --ring: #b8d8f7; /* Accent ring */
+  --chart-1: #6366f1; /* Violet - Default */
+  --chart-2: #b8d8f7; /* Accent blue */
+  --chart-3: #eaf3fa; /* Light blue */
+  --chart-4: #6c7a89; /* Muted navy */
+  --chart-5: #1f2937; /* Carbon */
+  --sidebar: #fdfbf7; /* Sidebar matches background */
+  --sidebar-foreground: #1f2937;
+  --sidebar-primary: #6366f1; /* Violet - Default */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #b8d8f7;
+  --sidebar-accent-foreground: #1f2937;
+  --sidebar-border: #dbe7f3;
+  --sidebar-ring: #b8d8f7;
+
+  /* Brand Accents */
+  --cream: #fdfbf7;
+  --carbon: #1f2937;
+  --violet: #6366f1;
+  --violet-dark: #4f46e5;
+  --violet-light: #818cf8;
+  --lime: #a3e635;
+  --lime-glow: #bef264;
+
+  /* Fonts */
+  --font-geist-sans: "Inter", sans-serif; /* Primary UI Font */
+  --font-geist-mono: "JetBrains Mono", monospace; /* Technical Font */
+  --font-space-grotesk: "Space Grotesk", sans-serif; /* Brand & Display Font */
+}
+
+.dark {
+  /* StudiSlim Brand Colors - Dark Mode */
+  --background: oklch(0.22 0.03 240); /* Dark navy - logo background */
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.28 0.03 240); /* Slightly lighter navy for cards */
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.28 0.03 240);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.7 0.15 200); /* Bright cyan - "STUDY" */
+  --primary-foreground: oklch(0.22 0.03 240);
+  --secondary: oklch(0.65 0.18 290); /* Bright purple - "SLIM" */
+  --secondary-foreground: oklch(0.22 0.03 240);
+  --muted: oklch(0.32 0.03 240);
+  --muted-foreground: oklch(0.65 0.01 240);
+  --accent: oklch(0.7 0.15 200); /* Cyan accent */
+  --accent-foreground: oklch(0.22 0.03 240);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.35 0.03 240);
+  --input: oklch(0.3 0.03 240);
+  --ring: oklch(0.7 0.15 200); /* Cyan ring */
+  --chart-1: oklch(0.7 0.15 200); /* Cyan */
+  --chart-2: oklch(0.65 0.18 290); /* Purple */
+  --chart-3: oklch(0.75 0.12 180); /* Light cyan */
+  --chart-4: oklch(0.6 0.15 300); /* Light purple */
+  --chart-5: oklch(0.55 0.08 240); /* Slate blue */
+  --sidebar: oklch(0.25 0.03 240); /* Darker navy */
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.7 0.15 200); /* Cyan */
+  --sidebar-primary-foreground: oklch(0.22 0.03 240);
+  --sidebar-accent: oklch(0.32 0.03 240);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.3 0.03 240);
+  --sidebar-ring: oklch(0.7 0.15 200);
+
+  /* Brand Accents - Dark Mode (using OKLCH for dark mode consistency) */
+  /* Adjust these if you have specific dark mode colors for the brand accents */
+  --cream: #fdfbf7; /* Keep cream for light accents in dark mode */
+  --carbon: #ffffff; /* Carbon becomes white in dark mode */
+  --violet: oklch(0.7 0.15 200); /* Cyan */
+  --violet-dark: oklch(0.6 0.15 200);
+  --violet-light: oklch(0.8 0.15 200);
+  --lime: oklch(0.65 0.18 290); /* Purple */
+  --lime-glow: oklch(0.75 0.18 290);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans; /* Apply Primary UI Font */
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display; /* Apply Brand & Display Font to headings */
+  }
+}
+
+/* Hide Next.js error overlay portal */
+nextjs-portal {
+  display: none !important;
+}

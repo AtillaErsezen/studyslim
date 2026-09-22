@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudiSlim | The AI-First Peer Tutoring Network</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+
+    <!-- Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#fdfbf7',
+                        carbon: '#1f2937',
+                        violet: { DEFAULT: '#6366f1', dark: '#4f46e5', light: '#818cf8' },
+                        lime: { DEFAULT: '#a3e635', glow: '#bef264' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'lime-glow': '0 0 20px -5px #a3e635',
+                        'violet-glow': '0 0 30px -10px #6366f1',
+                    },
+                    animation: {
+                        'cursor-blink': 'blink 1s step-end infinite',
+                    },
+                    keyframes: {
+                        blink: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #fdfbf7; color: #1f2937; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        
+        /* Noise Texture */
+        .bg-noise {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Fixed Horizontal Marquee */
+        .marquee-wrapper {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        .marquee-track {
+            display: flex;
+            width: max-content; /* Forces horizontal layout */
+            animation: scroll 40s linear infinite;
+        }
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); } /* Move half the width (since we duplicated logos) */
+        }
+
+        /* Chat Styles */
+        .chat-scroll::-webkit-scrollbar { width: 4px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+        .typing-dot { animation: bounce 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* Utilities */
+        .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(99, 102, 241, 0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .glass-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.3); }
+        .progress-dot { transition: all 0.3s; }
+        .progress-dot.active { height: 24px; background-color: #6366f1; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #a3e635; cursor: pointer; margin-top: -10px; box-shadow: 0 0 10px rgba(163, 230, 53, 0.5); border: 2px solid #fff; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; }
+    </style>
+</head>
+<body class="relative">
+
+    <div class="bg-noise"></div>
+
+    <!-- Progress Bar -->
+    <div class="fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4 progress-container">
+        <a href="#hero" class="group flex items-center gap-3 flex-row-reverse cursor-pointer" onclick="scrollToSection('#hero')"><div class="w-1.5 h-1.5 rounded-full bg-gray-300 progress-dot active" id="dot-hero"></div></a>
+        <a href="#universities" class="group flex items-center gap-3 flex-row-reverse cursor-pointer" onclick="scrollToSection('#universities')"><div class="w-1.5 h-1.5 rounded-full bg-gray-300 progress-dot" id="dot-universities"></div></a>
+        <a href="#how-it-works" class="group flex items-center gap-3 flex-row-reverse cursor-pointer" onclick="scrollToSection('#how-it-works')"><div class="w-1.5 h-1.5 rounded-full bg-gray-300 progress-dot" id="dot-how-it-works"></div></a>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-40 bg-cream/80 backdrop-blur-md border-b border-gray-200/50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Logo with Specific Local Path -->
+            <div class="flex items-center gap-3 group cursor-pointer" onclick="window.scrollTo({top:0, behavior: 'smooth'})">
+                <div class="relative w-48 h-12 flex items-center overflow-hidden">
+                   <img 
+                    src="/user/pc/Desktop/StudiSlim/StudiSlim_Logo.png" 
+                    alt="StudiSlim Logo" 
+                    class="object-contain h-full object-left transform transition-transform duration-300 group-hover:scale-105"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                   >
+                   <div class="hidden font-display text-2xl font-bold text-carbon">
+                        Studi<span class="text-violet">Slim</span><span class="text-lime text-xs align-top ml-0.5">♦</span>
+                   </div>
+                </div>
+            </div>
+
+            <!-- Toggle -->
+            <div class="hidden md:flex relative bg-gray-200/50 p-1 rounded-full cursor-pointer w-64 h-12 border border-gray-300/30 shadow-inner" id="role-toggle">
+                <div class="absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-white rounded-full shadow-sm shadow-gray-200 transform transition-all duration-500 ease-out z-0 toggle-bg"></div>
+                <div class="relative z-10 w-1/2 flex items-center justify-center font-display font-medium text-sm tracking-wide transition-colors duration-300 text-violet" id="btn-student">I'm a Student</div>
+                <div class="relative z-10 w-1/2 flex items-center justify-center font-display font-medium text-sm tracking-wide transition-colors duration-300 text-gray-500" id="btn-tutor">I'm a Tutor</div>
+            </div>
+
+            <!-- CTA -->
+            <div class="hidden md:flex items-center gap-6">
+                <a href="#" class="bg-carbon text-white px-6 py-2.5 rounded-full font-medium text-sm hover:bg-violet transition-colors duration-300 shadow-lg hover:shadow-violet-glow flex items-center gap-2 group">
+                    <span class="dynamic-cta-text">Get Started</span>
+                    <i class="fa-solid fa-arrow-right text-xs transform group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-[100vh] flex flex-col justify-center section-tracker">
+        <canvas id="hero-canvas" class="absolute inset-0 z-0"></canvas>
+        <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-violet/10 rounded-full blur-[100px] animate-pulse"></div>
+        <div class="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] bg-lime/20 rounded-full blur-[120px]"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+            
+            <!-- Left Side: Copy -->
+            <div class="hero-content space-y-8 relative min-h-[400px] flex flex-col justify-center">
+                <!-- Student Content -->
+                <div id="student-hero-content" class="transition-opacity duration-300">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-violet/20 shadow-sm animate-fade-in-up">
+                        <span class="w-2 h-2 rounded-full bg-lime animate-pulse"></span>
+                        <span class="text-xs font-semibold tracking-wide text-violet uppercase">Now Live in Amsterdam</span>
+                    </div>
+                    <h1 class="font-display text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-carbon mt-6 mb-4">
+                        Stop Searching. <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet to-violet-dark">Start Solving.</span>
+                    </h1>
+                    <p class="text-lg lg:text-xl text-gray-600 max-w-lg leading-relaxed mb-8">
+                        StudiSlim is the AI concierge that finds the <strong>one student</strong> who just aced your specific exam.
+                    </p>
+                    <div class="relative max-w-lg group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-violet to-lime rounded-full blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+                        <div class="relative flex items-center bg-white rounded-full p-2 pr-2 shadow-lg border border-gray-100 focus-within:border-violet focus-within:ring-4 focus-within:ring-violet/10 transition-all">
+                            <div class="pl-4 text-gray-400"><i class="fa-solid fa-magnifying-glass"></i></div>
+                            <input type="text" id="main-search-input" placeholder="I need help with Linear Algebra..." class="w-full bg-transparent px-4 py-3 outline-none text-carbon placeholder-gray-400 font-medium">
+                            <button class="bg-carbon text-white rounded-full px-6 py-3 font-medium hover:bg-violet transition-colors flex items-center gap-2 shrink-0">Search</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tutor Content -->
+                <div id="tutor-hero-content" class="hidden opacity-0 absolute top-0 left-0 w-full transition-opacity duration-300">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-lime/50 shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-violet animate-pulse"></span>
+                        <span class="text-xs font-semibold tracking-wide text-carbon uppercase">High Demand: Economics & Law</span>
+                    </div>
+                    <h1 class="font-display text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-carbon mt-6 mb-4">
+                        Turn Grades <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-lime to-green-600">Into Income.</span>
+                    </h1>
+                    <p class="text-lg lg:text-xl text-gray-600 max-w-lg leading-relaxed mb-8">
+                        Don't hunt for clients. We send students directly to you based on your transcript.
+                    </p>
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-xl max-w-md">
+                        <div class="flex justify-between items-end mb-4">
+                            <div class="text-sm text-gray-500 font-medium">Monthly Earnings</div>
+                            <div class="text-3xl font-bold text-carbon">€<span id="earnings-display">400</span></div>
+                        </div>
+                        <input type="range" min="1" max="20" value="5" id="hours-slider" class="mb-4">
+                        <div class="flex justify-between text-xs text-gray-400 font-medium uppercase tracking-wide">
+                            <span>1 hr/wk</span><span id="hours-display" class="text-violet font-bold">5 hrs/week</span><span>20 hrs/wk</span>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-gray-100 text-center">
+                            <a href="#" class="block w-full bg-lime text-carbon font-bold py-3 rounded-xl hover:bg-lime-glow transition-colors">Start Earning</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Live Chat Demo -->
+            <div class="relative lg:h-[650px] w-full flex items-center justify-center">
+                <div class="relative w-full max-w-md aspect-[4/5] lg:aspect-auto lg:h-[90%]">
+                    <!-- Decor -->
+                    <div class="absolute top-0 right-0 w-3/4 h-3/4 bg-violet/10 rounded-3xl opacity-50 rotate-6 transform translate-x-4"></div>
+                    
+                    <!-- Chat UI -->
+                    <div class="absolute inset-0 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col transform hover:scale-[1.01] transition-transform duration-500">
+                        <!-- Header -->
+                        <div class="h-16 border-b border-gray-100 flex items-center px-6 justify-between bg-white z-10">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet to-violet-dark flex items-center justify-center text-white text-xs font-bold">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-carbon">StudiSlim AI</div>
+                                    <div class="text-[10px] text-lime font-medium flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-lime"></span> Online</div>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
+                        </div>
+
+                        <!-- Chat Messages Container -->
+                        <div class="flex-1 p-5 space-y-4 overflow-y-auto chat-scroll bg-gray-50/50" id="chat-container">
+                            <!-- Bot Welcome -->
+                            <div class="flex gap-3">
+                                <div class="w-6 h-6 rounded-full bg-violet/10 flex items-center justify-center text-[10px] text-violet shrink-0 mt-1">AI</div>
+                                <div class="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-sm text-sm text-gray-600 shadow-sm max-w-[90%]">
+                                    Hey! I have access to 12,400+ past exams and tutor profiles. What course are you struggling with?
+                                </div>
+                            </div>
+                            <!-- More messages injected by JS -->
+                        </div>
+
+                        <!-- Chat Input -->
+                        <div class="p-4 bg-white border-t border-gray-100">
+                            <div class="flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2">
+                                <input type="text" disabled placeholder="Typing..." class="bg-transparent w-full text-sm outline-none text-gray-600" id="demo-chat-input">
+                                <button class="w-8 h-8 bg-violet text-white rounded-full flex items-center justify-center text-xs hover:scale-105 transition"><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FIXED: University Marquee Section -->
+    <section id="universities" class="border-y border-gray-200 bg-white py-12 relative overflow-hidden section-tracker">
+        <div class="max-w-7xl mx-auto px-6 mb-8 text-center">
+            <p class="text-sm font-medium text-gray-400 uppercase tracking-widest">Trusting Students From</p>
+        </div>
+        
+        <!-- Updated Marquee Structure -->
+        <div class="marquee-wrapper">
+            <div class="marquee-track gap-16 px-4 items-center">
+                <!-- Logos Set 1 -->
+                <img src="https://i0.wp.com/waop.nl/wp-content/uploads/2021/04/universiteit-van-amsterdam-logo-png-transparent.png?ssl=1" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://www.ru.nl/sites/default/files/2025-06/ru_logo_zwart.png" class="h-8 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://www.cementonline.nl/library/partner/TUDelft_logo_rgb-1718267573.7556.png" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Eindhoven_University_of_Technology_logo_new.svg/1280px-Eindhoven_University_of_Technology_logo_new.svg.png" class="h-10 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Erasmus_University_Rotterdam_Stacked_logo.png" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://www.che-project.eu/sites/default/files/2017-11/wageningen.png" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/UniversiteitLeidenLogo.svg/2560px-UniversiteitLeidenLogo.svg.png" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                
+                <!-- Logos Set 2 (Duplicate for Loop) -->
+                <img src="https://i0.wp.com/waop.nl/wp-content/uploads/2021/04/universiteit-van-amsterdam-logo-png-transparent.png?ssl=1" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://www.ru.nl/sites/default/files/2025-06/ru_logo_zwart.png" class="h-8 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://www.cementonline.nl/library/partner/TUDelft_logo_rgb-1718267573.7556.png" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Eindhoven_University_of_Technology_logo_new.svg/1280px-Eindhoven_University_of_Technology_logo_new.svg.png" class="h-10 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Erasmus_University_Rotterdam_Stacked_logo.png" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://www.che-project.eu/sites/default/files/2017-11/wageningen.png" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/UniversiteitLeidenLogo.svg/2560px-UniversiteitLeidenLogo.svg.png" class="h-12 w-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-24 bg-cream relative z-10 section-tracker min-h-[80vh] flex flex-col justify-center">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl font-bold text-carbon mb-4">The StudiSlim Shortcut</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg">We skip the awkward browsing. You get straight to the solution.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="glass-card p-8 rounded-3xl group">
+                    <div class="h-20 mb-6 flex items-end"><div class="bg-white border border-gray-200 rounded-lg p-2 w-full shadow-sm group-hover:-translate-y-2 transition-transform"><div class="flex gap-2 items-center"><div class="w-2 h-2 rounded-full bg-violet"></div><div class="h-2 w-24 bg-gray-100 rounded"></div></div></div></div>
+                    <h3 class="font-display text-xl font-bold mb-3">1. Ask the AI</h3>
+                    <p class="text-gray-600">Tell us your course code (e.g., 'Linear Algebra 1'). We scan the syllabus to understand exactly what you are stuck on.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="glass-card p-8 rounded-3xl group border-violet/30 shadow-violet-glow">
+                    <div class="h-20 mb-6 flex items-end"><div class="bg-carbon text-white rounded-xl p-3 w-full shadow-lg transform group-hover:scale-105 transition-transform flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-lime/20 border border-lime flex items-center justify-center text-lime text-xs font-bold">L</div><div class="flex-1"><div class="h-2 w-16 bg-gray-500 rounded mb-1"></div><div class="h-1.5 w-10 bg-lime rounded"></div></div><i class="fa-solid fa-check-circle text-lime"></i></div></div>
+                    <h3 class="font-display text-xl font-bold mb-3">2. The Perfect Match</h3>
+                    <p class="text-gray-600">We instantly pair you with a student who got an 8.5+ in that exact course. No browsing profiles.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="glass-card p-8 rounded-3xl group">
+                     <div class="h-20 mb-6 flex items-end relative"><div class="absolute bottom-0 w-full h-1 bg-gray-200 rounded"></div><div class="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-3 h-3 bg-violet rounded-full border-2 border-white"></div><div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-lg text-[10px] font-bold shadow-md text-carbon group-hover:-translate-y-2 transition-transform">UB Library</div></div>
+                    <h3 class="font-display text-xl font-bold mb-3">3. Meet on Campus</h3>
+                    <p class="text-gray-600">Meet at the library or a cafe on campus. In-person, real connection, high-bandwidth learning.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer" class="bg-carbon text-white py-12 border-t border-gray-800 section-tracker">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-2"><span class="font-display text-2xl font-bold">Studi<span class="text-violet font-light relative">Slim<span class="absolute -top-1 -right-2 text-lime text-[10px] transform rotate-45">♦</span></span></span></div>
+            <div class="flex gap-8 text-sm text-gray-400"><a href="#" class="hover:text-lime transition-colors">Privacy</a><a href="#" class="hover:text-lime transition-colors">Terms</a></div>
+            <div class="flex gap-4"><a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-violet transition-colors"><i class="fa-brands fa-instagram"></i></a></div>
+        </div>
+    </footer>
+
+    <!-- Logic -->
+    <script>
+        // --- CHAT DEMO SIMULATION ---
+        const chatContainer = document.getElementById('chat-container');
+        const demoInput = document.getElementById('demo-chat-input');
+        
+        const typeMessage = (text, isUser = false) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = isUser ? "flex gap-3 justify-end" : "flex gap-3";
+            
+            const avatar = isUser ? 
+                '' : `<div class="w-6 h-6 rounded-full bg-violet/10 flex items-center justify-center text-[10px] text-violet shrink-0 mt-1">AI</div>`;
+                
+            const bubble = `<div class="${isUser ? 'bg-carbon text-white' : 'bg-white border border-gray-200'} p-3 rounded-2xl ${isUser ? 'rounded-tr-sm' : 'rounded-tl-sm'} text-sm ${isUser ? '' : 'text-gray-600'} shadow-sm max-w-[90%] animate-fade-in-up">
+                ${text}
+            </div>`;
+            
+            wrapper.innerHTML = isUser ? bubble : avatar + bubble;
+            chatContainer.appendChild(wrapper);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+
+        const addTyping = () => {
+            const id = 'typing-' + Date.now();
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex gap-3";
+            wrapper.id = id;
+            wrapper.innerHTML = `<div class="w-6 h-6 rounded-full bg-violet/10 flex items-center justify-center text-[10px] text-violet shrink-0 mt-1">AI</div>
+            <div class="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-sm shadow-sm flex gap-1 items-center">
+                <div class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></div>
+                <div class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></div>
+                <div class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></div>
+            </div>`;
+            chatContainer.appendChild(wrapper);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return id;
+        };
+
+        const addTutorCard = (name, grade, img) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex gap-3";
+            wrapper.innerHTML = `<div class="w-6 h-6 opacity-0 shrink-0"></div>
+            <div class="bg-white border border-gray-200 p-3 rounded-2xl text-sm text-gray-600 shadow-sm w-64 animate-fade-in-up">
+                <div class="flex gap-3 items-center mb-2">
+                    <img src="${img}" class="w-10 h-10 rounded-full object-cover">
+                    <div>
+                        <div class="font-bold text-carbon">${name}</div>
+                        <div class="text-[10px] bg-lime/20 text-lime-700 px-1.5 py-0.5 rounded inline-block font-bold">Grade: ${grade}</div>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 mb-3">"I took this exact course with Prof. Jansen last year. I have all the cheat sheets."</div>
+                <button class="w-full bg-carbon text-white py-2 rounded-lg text-xs font-bold hover:bg-violet transition">Book Session (€20)</button>
+            </div>`;
+            chatContainer.appendChild(wrapper);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+
+        const runChatSequence = async () => {
+            await new Promise(r => setTimeout(r, 1000));
+            
+            // 1. User Types
+            let text = "I'm failing UvA Macroeconomics. Help with IS-LM models?";
+            demoInput.value = "";
+            for(let i=0; i<text.length; i++) {
+                demoInput.value += text[i];
+                await new Promise(r => setTimeout(r, 50));
+            }
+            await new Promise(r => setTimeout(r, 500));
+            demoInput.value = "";
+            typeMessage(text, true);
+
+            // 2. Bot Thinks
+            await new Promise(r => setTimeout(r, 500));
+            const typeId = addTyping();
+            
+            // 3. Bot Answers
+            await new Promise(r => setTimeout(r, 1500));
+            document.getElementById(typeId).remove();
+            typeMessage("I scanned the syllabus. Professor Jansen loves asking about the <strong>IS-LM intersection shifts</strong>. It appeared in 3 of the last 4 exams.");
+            
+            // 4. Suggest Tutors
+            await new Promise(r => setTimeout(r, 800));
+            typeMessage("Here are two students who aced this specific exam:");
+            addTutorCard("Lars V.", "9.0", "https://i.pravatar.cc/150?img=11");
+            await new Promise(r => setTimeout(r, 400));
+            addTutorCard("Sarah K.", "8.5", "https://i.pravatar.cc/150?img=5");
+            
+            // Loop?
+            setTimeout(() => {
+                chatContainer.innerHTML = `<div class="flex gap-3"><div class="w-6 h-6 rounded-full bg-violet/10 flex items-center justify-center text-[10px] text-violet shrink-0 mt-1">AI</div><div class="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-sm text-sm text-gray-600 shadow-sm max-w-[90%]">Hey! I have access to 12,400+ past exams and tutor profiles. What course are you struggling with?</div></div>`;
+                runChatSequence();
+            }, 8000);
+        };
+
+        runChatSequence();
+
+        // --- BACKGROUND & INTERACTION ---
+        const canvas = document.getElementById('hero-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, nodes = [];
+        const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; initNodes(); };
+        const initNodes = () => {
+            nodes = Array.from({length: Math.floor((width * height) / 15000)}, () => ({
+                x: Math.random() * width, y: Math.random() * height,
+                vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5,
+                color: Math.random()>0.9 ? '#a3e635' : '#e5e7eb', size: Math.random()*2+1
+            }));
+        };
+        window.addEventListener('resize', resize); resize();
+        function animate() {
+            ctx.clearRect(0,0,width,height);
+            nodes.forEach((n, i) => {
+                n.x += n.vx; n.y += n.vy;
+                if(n.x<0||n.x>width) n.vx*=-1; if(n.y<0||n.y>height) n.vy*=-1;
+                ctx.beginPath(); ctx.arc(n.x, n.y, n.size, 0, Math.PI*2); ctx.fillStyle = n.color; ctx.fill();
+                nodes.slice(i+1).forEach(n2 => {
+                    const d = Math.hypot(n.x-n2.x, n.y-n2.y);
+                    if(d<100) { ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(n2.x, n2.y); ctx.strokeStyle=`rgba(209,213,219,${0.2-d/500})`; ctx.stroke(); }
+                });
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- TOGGLE LOGIC ---
+        const toggleBtn = document.getElementById('role-toggle');
+        const toggleBg = document.querySelector('.toggle-bg');
+        const btnStudent = document.getElementById('btn-student');
+        const btnTutor = document.getElementById('btn-tutor');
+        const studentContent = document.getElementById('student-hero-content');
+        const tutorContent = document.getElementById('tutor-hero-content');
+        let isTutor = false;
+
+        toggleBtn.addEventListener('click', () => {
+            isTutor = !isTutor;
+            toggleBg.style.transform = isTutor ? 'translateX(100%)' : 'translateX(0)';
+            
+            // Text Colors
+            btnStudent.className = isTutor ? "relative z-10 w-1/2 flex items-center justify-center font-display font-medium text-sm tracking-wide transition-colors duration-300 text-gray-500" : "relative z-10 w-1/2 flex items-center justify-center font-display font-medium text-sm tracking-wide transition-colors duration-300 text-violet";
+            btnTutor.className = isTutor ? "relative z-10 w-1/2 flex items-center justify-center font-display font-medium text-sm tracking-wide transition-colors duration-300 text-violet" : "relative z-10 w-1/2 flex items-center justify-center font-display font-medium text-sm tracking-wide transition-colors duration-300 text-gray-500";
+
+            if (isTutor) {
+                studentContent.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => studentContent.classList.add('hidden'), 300);
+                tutorContent.classList.remove('hidden');
+                setTimeout(() => tutorContent.classList.remove('opacity-0'), 50);
+            } else {
+                tutorContent.classList.add('opacity-0');
+                setTimeout(() => tutorContent.classList.add('hidden'), 300);
+                studentContent.classList.remove('hidden');
+                setTimeout(() => studentContent.classList.remove('opacity-0', 'pointer-events-none'), 50);
+            }
+        });
+
+        // --- CALCULATOR ---
+        document.getElementById('hours-slider').addEventListener('input', (e) => {
+            document.getElementById('hours-display').innerText = `${e.target.value} hrs/week`;
+            document.getElementById('earnings-display').innerText = e.target.value * 20 * 4;
+        });
+
+        // --- SCROLL NAV ---
+        const sections = document.querySelectorAll('.section-tracker');
+        const dots = document.querySelectorAll('.progress-dot');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(s => { if(window.scrollY >= (s.offsetTop - s.clientHeight/3)) current = s.id; });
+            dots.forEach(d => { d.classList.remove('active'); if(d.id === `dot-${current}`) d.classList.add('active'); });
+        });
+        function scrollToSection(id) { gsap.to(window, {duration: 1, scrollTo: id, ease: "power3.inOut"}); }
+
+    </script>
+</body>
+</html>
