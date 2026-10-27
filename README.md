@@ -2,6 +2,11 @@
 
 A modern, full-stack peer tutoring platform built with Next.js, TypeScript, and Turso (LibSQL). StudySlim connects university students (currently focused on Amsterdam universities) with qualified peer tutors for academic support, powered by an AI matching and RAG-based assistant.
 
+<p align="center">
+  <a href="https://github.com/AtillaErsezen/studyslim/blob/main/assets/demo.mp4"><img src="https://raw.githubusercontent.com/AtillaErsezen/studyslim/main/assets/demo.jpg" alt="Watch the StudiSlim demo video" width="720"></a>
+  <br><sub>▶ Click to watch the 22s demo</sub>
+</p>
+
 ## 🌟 Features
 
 ### For Students
